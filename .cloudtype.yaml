@@ -1,0 +1,13 @@
+name: agifirst
+app:
+  env:
+    - name: NODE_ENV
+      value: production
+  ports: 3000
+  build:
+    type: dockerfile
+    dockerfile: Dockerfile
+  context:
+    git:
+      url: git@github.com:$GITHUB_USER/$GITHUB_REPO.git
+      ref: $GITHUB_BRANCH
