@@ -26,9 +26,16 @@ wss.on('connection', (ws) => {
   console.log('New client connected');
   const sessionId = Date.now().toString();
 
+  // Keep-alive ping/pong
+  ws.isAlive = true;
+  ws.on('pong', () => {
+    ws.isAlive = true;
+  });
+
   ws.on('message', async (message) => {
     try {
       const data = JSON.parse(message.toString());
+      console.log(`Received message type: ${data.type}`);
 
       switch (data.type) {
         case 'init':
@@ -45,10 +52,12 @@ wss.on('connection', (ws) => {
       }
     } catch (error) {
       console.error('Error handling message:', error);
-      ws.send(JSON.stringify({
-        type: 'error',
-        message: error.message
-      }));
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: error.message
+        }));
+      }
     }
   });
 
@@ -57,11 +66,31 @@ wss.on('connection', (ws) => {
     if (sessions.has(sessionId)) {
       const session = sessions.get(sessionId);
       if (session.browserAgent) {
-        session.browserAgent.close();
+        session.browserAgent.close().catch(err => console.error('Error closing browser:', err));
       }
       sessions.delete(sessionId);
     }
   });
+
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+});
+
+// WebSocket keep-alive interval
+const keepAliveInterval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      console.log('Terminating inactive connection');
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000); // Every 30 seconds
+
+wss.on('close', () => {
+  clearInterval(keepAliveInterval);
 });
 
 async function handleInit(ws, sessionId, data) {
@@ -108,14 +137,27 @@ async function handleExecute(ws, sessionId, data) {
   }
 
   const { task } = data;
+  console.log(`Executing task: ${task}`);
 
   try {
-    await session.browserAgent.executeTask(task);
+    // Run task in background, don't await to prevent timeout
+    session.browserAgent.executeTask(task).catch(error => {
+      console.error('Task execution error:', error);
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: 'Task execution failed: ' + error.message
+        }));
+      }
+    });
   } catch (error) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Task execution failed: ' + error.message
-    }));
+    console.error('Error starting task:', error);
+    if (ws.readyState === ws.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'error',
+        message: 'Failed to start task: ' + error.message
+      }));
+    }
   }
 }
 

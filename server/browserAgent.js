@@ -48,11 +48,19 @@ export class BrowserAgent {
   }
 
   sendStatus(status, message, data = {}) {
-    this.ws.send(JSON.stringify({
-      type: status,
-      message,
-      ...data
-    }));
+    try {
+      if (this.ws && this.ws.readyState === 1) { // 1 = OPEN
+        this.ws.send(JSON.stringify({
+          type: status,
+          message,
+          ...data
+        }));
+      } else {
+        console.log(`Cannot send message (WebSocket closed): ${status} - ${message}`);
+      }
+    } catch (error) {
+      console.error('Error sending status:', error);
+    }
   }
 
   async executeTask(task) {
