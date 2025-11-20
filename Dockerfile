@@ -52,13 +52,14 @@ RUN CHROME_VERSION="131.0.6778.108" && \
 # Create app directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and scripts folder (needed for postinstall)
 COPY package*.json ./
+COPY scripts ./scripts
 
-# Install dependencies
+# Install dependencies (will run postinstall script)
 RUN npm ci --only=production
 
-# Copy app files
+# Copy remaining app files
 COPY . .
 
 # Expose port
