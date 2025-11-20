@@ -32,8 +32,8 @@ RUN apt-get update && apt-get install -y \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome and ChromeDriver using Chrome for Testing
-RUN CHROME_VERSION=$(curl -sS https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json | jq -r '.channels.Stable.version') && \
+# Install Chrome and ChromeDriver using Chrome for Testing (specific stable version)
+RUN CHROME_VERSION="131.0.6778.108" && \
     echo "Installing Chrome version: $CHROME_VERSION" && \
     wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" -O /tmp/chrome-linux64.zip && \
     wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" -O /tmp/chromedriver-linux64.zip && \
@@ -44,6 +44,8 @@ RUN CHROME_VERSION=$(curl -sS https://googlechromelabs.github.io/chrome-for-test
     chmod +x /usr/local/bin/google-chrome && \
     chmod +x /usr/local/bin/chromedriver && \
     rm /tmp/chrome-linux64.zip /tmp/chromedriver-linux64.zip && \
+    echo "Chrome installation completed" && \
+    ls -la /opt/chrome-linux64/ && \
     google-chrome --version && \
     chromedriver --version
 
