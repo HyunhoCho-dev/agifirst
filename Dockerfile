@@ -1,9 +1,11 @@
 FROM node:20-slim
 
-# Install Chrome and dependencies
+# Install Chrome, ChromeDriver and dependencies
 RUN apt-get update && apt-get install -y \
     wget \
+    curl \
     gnupg \
+    unzip \
     ca-certificates \
     fonts-liberation \
     libasound2 \
@@ -29,6 +31,13 @@ RUN apt-get update && apt-get install -y \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
+
+# Install ChromeDriver
+RUN CHROMEDRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
+    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
+    rm /tmp/chromedriver.zip && \
+    chmod +x /usr/local/bin/chromedriver
 
 # Create app directory
 WORKDIR /app
