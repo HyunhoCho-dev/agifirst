@@ -1,73 +1,65 @@
-FROM node:20-slim
+# Python 3.11 기반 이미지
+FROM python:3.11-slim
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    unzip \
-    gnupg \
-    ca-certificates \
-    fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libatspi2.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libdrm2 \
-    libgbm1 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libwayland-client0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxkbcommon0 \
-    libxrandr2 \
-    libxss1 \
-    xdg-utils \
-    libu2f-udev \
-    libvulkan1 \
-    jq \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Chrome and ChromeDriver using Chrome for Testing (specific stable version)
-RUN CHROME_VERSION="131.0.6778.108" && \
-    echo "Installing Chrome version: $CHROME_VERSION" && \
-    wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" -O /tmp/chrome-linux64.zip && \
-    wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" -O /tmp/chromedriver-linux64.zip && \
-    unzip /tmp/chrome-linux64.zip -d /opt/ && \
-    unzip /tmp/chromedriver-linux64.zip -d /opt/ && \
-    ln -s /opt/chrome-linux64/chrome /usr/local/bin/google-chrome && \
-    ln -s /opt/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
-    chmod +x /usr/local/bin/google-chrome && \
-    chmod +x /usr/local/bin/chromedriver && \
-    rm /tmp/chrome-linux64.zip /tmp/chromedriver-linux64.zip && \
-    echo "Chrome installation completed" && \
-    ls -la /opt/chrome-linux64/ && \
-    google-chrome --version && \
-    chromedriver --version
-
-# Create app directory
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# Copy package files and scripts folder (needed for postinstall)
-COPY package*.json ./
-COPY scripts ./scripts
+# Chrome 설치를 위한 의존성
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies (will run postinstall script)
-RUN npm ci --only=production
+# Chrome 버전 설정
+ARG CHROME_VERSION="131.0.6778.108"
 
-# Copy remaining app files
+# Chrome 다운로드 및 설치
+RUN wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" && \
+    unzip chrome-linux64.zip && \
+    mv chrome-linux64 /opt/ && \
+    rm chrome-linux64.zip && \
+    ln -s /opt/chrome-linux64/chrome /usr/local/bin/chrome
+
+# ChromeDriver 다운로드 및 설치
+RUN wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" && \
+    unzip chromedriver-linux64.zip && \
+    mv chromedriver-linux64/chromedriver /usr/local/bin/ && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm -rf chromedriver-linux64.zip chromedriver-linux64
+
+# Chrome 실행에 필요한 라이브러리 설치
+RUN apt-get update && apt-get install -y \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libatspi2.0-0 \
+    libxshmfence1 \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 패키지 복사 및 설치
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 애플리케이션 코드 복사
 COPY . .
 
-# Expose port
-EXPOSE 3000
+# 환경 변수 설정
+ENV PYTHONUNBUFFERED=1
+ENV PORT=5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+# 포트 노출
+EXPOSE 5000
 
-# Start the application
-CMD ["npm", "start"]
+# Gunicorn으로 앱 실행
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "app:app"]

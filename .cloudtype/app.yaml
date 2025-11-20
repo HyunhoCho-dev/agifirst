@@ -1,0 +1,7 @@
+name: agifirst-python
+app: python@3.11
+options:
+  ports: 5000
+  buildType: dockerfile
+install: pip3 install -r requirements.txt
+start: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 app:app

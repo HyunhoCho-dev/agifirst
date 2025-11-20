@@ -1,6 +1,6 @@
 class AGIFirstClient {
   constructor() {
-    this.ws = null;
+    this.socket = null;
     this.sessionId = null;
     this.apiKey = null;
     this.isConnected = false;
@@ -64,36 +64,35 @@ class AGIFirstClient {
     this.connectBtn.textContent = 'Connecting...';
 
     try {
-      // Determine WebSocket URL based on environment
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = window.location.host;
-      const wsUrl = `${protocol}//${host}`;
+      // Connect using Socket.IO
+      this.socket = io({
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5
+      });
 
-      this.ws = new WebSocket(wsUrl);
-
-      this.ws.onopen = () => {
-        console.log('WebSocket connected');
-        this.ws.send(JSON.stringify({
+      this.socket.on('connect', () => {
+        console.log('Socket.IO connected');
+        this.socket.emit('message', {
           type: 'init',
           apiKey: this.apiKey
-        }));
-      };
+        });
+      });
 
-      this.ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+      this.socket.on('message', (data) => {
         this.handleMessage(data);
-      };
+      });
 
-      this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      this.socket.on('connect_error', (error) => {
+        console.error('Socket.IO error:', error);
         this.showError('Connection error. Please try again.');
         this.resetConnection();
-      };
+      });
 
-      this.ws.onclose = () => {
-        console.log('WebSocket closed');
+      this.socket.on('disconnect', () => {
+        console.log('Socket.IO disconnected');
         this.resetConnection();
-      };
+      });
 
     } catch (error) {
       console.error('Connection error:', error);
@@ -184,17 +183,17 @@ class AGIFirstClient {
     this.taskInput.value = '';
     this.taskInput.style.height = 'auto';
 
-    this.ws.send(JSON.stringify({
+    this.socket.emit('message', {
       type: 'execute',
       task: task
-    }));
+    });
   }
 
   stopTask() {
-    if (this.isExecuting && this.ws) {
-      this.ws.send(JSON.stringify({
+    if (this.isExecuting && this.socket) {
+      this.socket.emit('message', {
         type: 'stop'
-      }));
+      });
     }
   }
 
@@ -229,8 +228,8 @@ class AGIFirstClient {
   }
 
   disconnect() {
-    if (this.ws) {
-      this.ws.close();
+    if (this.socket) {
+      this.socket.disconnect();
     }
     this.resetConnection();
     this.apiKeyModal.classList.remove('hidden');
