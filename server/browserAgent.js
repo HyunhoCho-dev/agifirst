@@ -1,30 +1,30 @@
-import { chromium } from 'playwright';
+import { Builder, By, until, Key } from 'selenium-webdriver';
+import chrome from 'selenium-webdriver/chrome.js';
 
 export class BrowserAgent {
   constructor(groqService, ws) {
     this.groqService = groqService;
     this.ws = ws;
-    this.browser = null;
-    this.page = null;
+    this.driver = null;
     this.isExecuting = false;
     this.shouldStop = false;
   }
 
   async initialize() {
-    if (!this.browser) {
-      this.browser = await chromium.launch({
-        headless: true, // Production mode
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu'
-        ]
-      });
-      this.page = await this.browser.newPage();
+    if (!this.driver) {
+      const options = new chrome.Options();
+      options.addArguments('--headless=new');
+      options.addArguments('--no-sandbox');
+      options.addArguments('--disable-dev-shm-usage');
+      options.addArguments('--disable-gpu');
+      options.addArguments('--window-size=1280,720');
 
-      // Set viewport
-      await this.page.setViewportSize({ width: 1280, height: 720 });
+      this.driver = await new Builder()
+        .forBrowser('chrome')
+        .setChromeOptions(options)
+        .build();
+
+      await this.driver.manage().window().setRect({ width: 1280, height: 720 });
     }
   }
 
@@ -49,17 +49,17 @@ export class BrowserAgent {
       await this.initialize();
       this.sendStatus('started', 'Starting task execution...');
 
-      const systemPrompt = `You are an AI browser automation assistant. Your job is to control a web browser using Playwright commands to complete user tasks.
+      const systemPrompt = `You are an AI browser automation assistant. Your job is to control a web browser using Selenium commands to complete user tasks.
 
 Available actions you can take:
 1. navigate(url) - Navigate to a URL
-2. click(selector) - Click an element
+2. click(selector) - Click an element (use CSS selectors)
 3. type(selector, text) - Type text into an input
 4. scroll(direction) - Scroll up or down
 5. screenshot() - Take a screenshot
 6. extract(selector) - Extract text from elements
 7. wait(seconds) - Wait for specified seconds
-8. press(key) - Press a keyboard key
+8. press(key) - Press a keyboard key (e.g., "Enter", "Tab")
 
 You must respond with a JSON array of actions to take, followed by your reasoning. Format:
 {
@@ -122,7 +122,7 @@ IMPORTANT: Always provide concrete, working CSS selectors. If you're unsure, use
 
             try {
               await this.executeAction(actionItem);
-              await this.page.waitForTimeout(1000); // Wait between actions
+              await this.driver.sleep(1000); // Wait between actions
             } catch (error) {
               this.sendStatus('action_error', `Action failed: ${error.message}`, {
                 action: actionItem
@@ -158,43 +158,68 @@ IMPORTANT: Always provide concrete, working CSS selectors. If you're unsure, use
 
     switch (action) {
       case 'navigate':
-        await this.page.goto(params.url, { waitUntil: 'networkidle' });
+        await this.driver.get(params.url);
         break;
 
       case 'click':
-        await this.page.click(params.selector);
+        const clickElement = await this.driver.wait(
+          until.elementLocated(By.css(params.selector)),
+          10000
+        );
+        await clickElement.click();
         break;
 
       case 'type':
-        await this.page.fill(params.selector, params.text);
+        const typeElement = await this.driver.wait(
+          until.elementLocated(By.css(params.selector)),
+          10000
+        );
+        await typeElement.clear();
+        await typeElement.sendKeys(params.text);
         break;
 
       case 'scroll':
         const direction = params.direction || 'down';
-        await this.page.evaluate((dir) => {
-          window.scrollBy(0, dir === 'down' ? 500 : -500);
-        }, direction);
+        await this.driver.executeScript(`window.scrollBy(0, ${direction === 'down' ? 500 : -500});`);
         break;
 
       case 'screenshot':
-        const screenshot = await this.page.screenshot({ encoding: 'base64' });
+        const screenshot = await this.driver.takeScreenshot();
         this.sendStatus('screenshot', 'Screenshot taken', { screenshot });
         break;
 
       case 'extract':
-        const elements = await this.page.$$(params.selector);
+        const elements = await this.driver.findElements(By.css(params.selector));
         const texts = await Promise.all(
-          elements.map(el => el.textContent())
+          elements.map(el => el.getText())
         );
         this.sendStatus('extracted', 'Text extracted', { texts });
         break;
 
       case 'wait':
-        await this.page.waitForTimeout((params.seconds || 1) * 1000);
+        await this.driver.sleep((params.seconds || 1) * 1000);
         break;
 
       case 'press':
-        await this.page.keyboard.press(params.key);
+        const body = await this.driver.findElement(By.css('body'));
+        let keyToPress = params.key;
+
+        // Map common key names to Selenium Key enum
+        const keyMap = {
+          'Enter': Key.ENTER,
+          'Return': Key.RETURN,
+          'Tab': Key.TAB,
+          'Escape': Key.ESCAPE,
+          'Backspace': Key.BACK_SPACE,
+          'Delete': Key.DELETE,
+          'ArrowUp': Key.ARROW_UP,
+          'ArrowDown': Key.ARROW_DOWN,
+          'ArrowLeft': Key.ARROW_LEFT,
+          'ArrowRight': Key.ARROW_RIGHT,
+        };
+
+        keyToPress = keyMap[params.key] || params.key;
+        await body.sendKeys(keyToPress);
         break;
 
       default:
@@ -203,10 +228,13 @@ IMPORTANT: Always provide concrete, working CSS selectors. If you're unsure, use
   }
 
   async getPageInfo() {
+    const url = await this.driver.getCurrentUrl();
+    const title = await this.driver.getTitle();
+
     return {
-      url: this.page.url(),
-      title: await this.page.title(),
-      html: await this.page.content()
+      url,
+      title,
+      html: '' // We can omit HTML for performance
     };
   }
 
@@ -216,10 +244,9 @@ IMPORTANT: Always provide concrete, working CSS selectors. If you're unsure, use
   }
 
   async close() {
-    if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
-      this.page = null;
+    if (this.driver) {
+      await this.driver.quit();
+      this.driver = null;
     }
   }
 }

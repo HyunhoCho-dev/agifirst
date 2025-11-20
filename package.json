@@ -1,7 +1,7 @@
 {
   "name": "agifirst",
   "version": "1.0.0",
-  "description": "AI-powered browser automation platform using Groq API and Playwright",
+  "description": "AI-powered browser automation platform using Groq API and Selenium",
   "main": "server/index.js",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
   "keywords": [
     "ai",
     "browser-automation",
-    "playwright",
+    "selenium",
     "groq"
   ],
   "author": "",
@@ -25,7 +25,7 @@
     "cors": "^2.8.5",
     "ws": "^8.14.2",
     "groq-sdk": "^0.3.2",
-    "playwright": "^1.40.1",
+    "selenium-webdriver": "^4.16.0",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
