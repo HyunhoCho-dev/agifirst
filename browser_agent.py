@@ -1,33 +1,35 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 import time
 import json
+import logging
 import os
 
+logger = logging.getLogger(__name__)
+
 class BrowserAgent:
-    def __init__(self, groq_service, session_id, socketio):
+    def __init__(self, groq_service, socketio, session_id):
         self.groq_service = groq_service
-        self.session_id = session_id
         self.socketio = socketio
+        self.session_id = session_id
         self.driver = None
         self.is_executing = False
         self.should_stop = False
 
     def initialize(self):
+        """Initialize Selenium WebDriver with Chrome"""
         if not self.driver:
             try:
                 options = Options()
 
                 # Try to set Chrome binary path if it exists
-                chrome_path = '/opt/chrome-linux64/chrome'
-                if os.path.exists(chrome_path):
-                    options.binary_location = chrome_path
-                    print(f'Using Chrome at {chrome_path}')
+                if os.path.exists('/opt/chrome-linux64/chrome'):
+                    options.binary_location = '/opt/chrome-linux64/chrome'
+                    logger.info('Using Chrome at /opt/chrome-linux64/chrome')
 
                 # Headless and security options
                 options.add_argument('--headless=new')
@@ -42,32 +44,32 @@ class BrowserAgent:
                 options.add_argument('--disable-blink-features=AutomationControlled')
                 options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
 
-                print('Initializing Selenium WebDriver with Chrome...')
+                logger.info('Initializing Selenium WebDriver with Chrome...')
 
                 self.driver = webdriver.Chrome(options=options)
                 self.driver.set_window_size(1280, 720)
 
                 self.send_status('browser_ready', 'Browser initialized successfully')
-                print('✅ Browser initialized successfully')
+                logger.info('✅ Browser initialized successfully')
             except Exception as e:
-                print(f'❌ Browser initialization failed: {e}')
+                logger.error(f'❌ Browser initialization failed: {e}')
                 self.send_status('error', f'Failed to initialize browser: {str(e)}')
                 raise
 
-    def send_status(self, status, message, data=None):
+    def send_status(self, status, message, **kwargs):
+        """Send status update to client via WebSocket"""
         try:
-            payload = {
+            data = {
                 'type': status,
-                'message': message
+                'message': message,
+                **kwargs
             }
-            if data:
-                payload.update(data)
-
-            self.socketio.emit('message', payload, room=self.session_id)
+            self.socketio.emit('message', data, to=self.session_id)
         except Exception as e:
-            print(f'Error sending status: {e}')
+            logger.error(f'Error sending status: {e}')
 
     def execute_task(self, task):
+        """Execute a browser automation task"""
         if self.is_executing:
             self.send_status('error', 'Another task is already running')
             return
@@ -125,10 +127,8 @@ Iteration: {iteration_count}/{max_iterations}
 
 What should I do next?"""
 
-                self.send_status('thinking', 'AI is analyzing the page...', {
-                    'iteration': iteration_count,
-                    'url': page_info['url']
-                })
+                self.send_status('thinking', 'AI is analyzing the page...',
+                               iteration=iteration_count, url=page_info['url'])
 
                 # Get AI decision
                 ai_response = self.groq_service.chat(user_prompt, system_prompt)
@@ -144,10 +144,8 @@ What should I do next?"""
                     else:
                         raise ValueError('No JSON found in response')
                 except Exception as e:
-                    self.send_status('warning', 'Failed to parse AI response, retrying...', {
-                        'error': str(e),
-                        'response': ai_response
-                    })
+                    self.send_status('warning', 'Failed to parse AI response, retrying...',
+                                   error=str(e), response=ai_response)
                     continue
 
                 # Execute actions
@@ -160,30 +158,30 @@ What should I do next?"""
                             self.execute_action(action_item)
                             time.sleep(1)  # Wait between actions
                         except Exception as e:
-                            self.send_status('action_error', f'Action failed: {str(e)}', {
-                                'action': action_item
-                            })
+                            self.send_status('action_error', f'Action failed: {str(e)}',
+                                           action=action_item)
 
                 # Check if task is complete
                 if parsed_response.get('isComplete'):
                     is_complete = True
-                    self.send_status('completed', 'Task completed successfully!', {
-                        'reasoning': parsed_response.get('reasoning', '')
-                    })
+                    self.send_status('completed', 'Task completed successfully!',
+                                   reasoning=parsed_response.get('reasoning', ''))
 
             if iteration_count >= max_iterations:
                 self.send_status('max_iterations', 'Reached maximum iterations. Task may not be complete.')
 
         except Exception as e:
+            logger.error(f'Task execution failed: {e}')
             self.send_status('error', f'Task execution failed: {str(e)}')
         finally:
             self.is_executing = False
 
     def execute_action(self, action_item):
+        """Execute a single browser action"""
         action = action_item.get('action')
         params = action_item.get('params', {})
 
-        self.send_status('action', f'Executing: {action}', {'params': params})
+        self.send_status('action', f'Executing: {action}', params=params)
 
         if action == 'navigate':
             self.driver.get(params['url'])
@@ -208,22 +206,18 @@ What should I do next?"""
 
         elif action == 'screenshot':
             screenshot = self.driver.get_screenshot_as_base64()
-            self.send_status('screenshot', 'Screenshot taken', {'screenshot': screenshot})
+            self.send_status('screenshot', 'Screenshot taken', screenshot=screenshot)
 
         elif action == 'extract':
             elements = self.driver.find_elements(By.CSS_SELECTOR, params['selector'])
             texts = [el.text for el in elements]
-            self.send_status('extracted', 'Text extracted', {'texts': texts})
+            self.send_status('extracted', 'Text extracted', texts=texts)
 
         elif action == 'wait':
-            seconds = params.get('seconds', 1)
-            time.sleep(seconds)
+            time.sleep(params.get('seconds', 1))
 
         elif action == 'press':
-            key = params.get('key', '')
-            body = self.driver.find_element(By.CSS_SELECTOR, 'body')
-
-            # Map common key names to Selenium Keys
+            key = params['key']
             key_map = {
                 'Enter': Keys.ENTER,
                 'Return': Keys.RETURN,
@@ -236,28 +230,28 @@ What should I do next?"""
                 'ArrowLeft': Keys.ARROW_LEFT,
                 'ArrowRight': Keys.ARROW_RIGHT,
             }
-
             key_to_press = key_map.get(key, key)
+            body = self.driver.find_element(By.CSS_SELECTOR, 'body')
             body.send_keys(key_to_press)
 
         else:
             self.send_status('warning', f'Unknown action: {action}')
 
     def get_page_info(self):
-        url = self.driver.current_url
-        title = self.driver.title
-
+        """Get current page information"""
         return {
-            'url': url,
-            'title': title,
+            'url': self.driver.current_url,
+            'title': self.driver.title,
             'html': ''  # Omit HTML for performance
         }
 
     def stop(self):
+        """Stop task execution"""
         self.should_stop = True
         self.is_executing = False
 
     def close(self):
+        """Close the browser"""
         if self.driver:
             self.driver.quit()
             self.driver = None

@@ -1,4 +1,7 @@
 from groq import Groq
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GroqAIService:
     def __init__(self, api_key):
@@ -6,6 +9,7 @@ class GroqAIService:
         self.conversation_history = []
 
     def chat(self, user_message, system_prompt=None):
+        """Send a chat message to Groq API and get response"""
         messages = []
 
         if system_prompt:
@@ -28,7 +32,7 @@ class GroqAIService:
                 messages=messages,
                 model='llama-3.3-70b-versatile',
                 temperature=0.7,
-                max_tokens=8000
+                max_tokens=8000,
             )
 
             assistant_message = completion.choices[0].message.content
@@ -49,8 +53,9 @@ class GroqAIService:
 
             return assistant_message
         except Exception as e:
-            print(f'Groq API error: {e}')
+            logger.error(f'Groq API error: {e}')
             raise Exception(f'Failed to get AI response: {str(e)}')
 
     def clear_history(self):
+        """Clear conversation history"""
         self.conversation_history = []
