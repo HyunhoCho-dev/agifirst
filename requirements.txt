@@ -5,4 +5,6 @@ python-socketio==5.10.0
 gunicorn==21.2.0
 eventlet==0.33.3
 selenium==4.16.0
-groq==0.4.2
+groq==0.11.0
+httpx==0.27.0
+httpcore==1.0.5
