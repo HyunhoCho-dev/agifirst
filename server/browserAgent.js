@@ -15,9 +15,8 @@ export class BrowserAgent {
       try {
         const options = new chrome.Options();
 
-        // Chrome binary path - try to auto-detect or use common paths
-        // Don't set it explicitly, let Selenium find it automatically
-        // options.setChromeBinaryPath('/usr/bin/google-chrome-stable');
+        // Chrome binary path for Chrome for Testing
+        options.setChromeBinaryPath('/opt/chrome-linux64/chrome');
 
         // Headless and security options
         options.addArguments('--headless=new');

@@ -1,11 +1,11 @@
 FROM node:20-slim
 
-# Install Chrome, ChromeDriver and dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
-    gnupg \
     unzip \
+    gnupg \
     ca-certificates \
     fonts-liberation \
     libasound2 \
@@ -25,23 +25,26 @@ RUN apt-get update && apt-get install -y \
     libxfixes3 \
     libxkbcommon0 \
     libxrandr2 \
+    libxss1 \
     xdg-utils \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
+    libu2f-udev \
+    libvulkan1 \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ChromeDriver (using Chrome for Testing)
-RUN CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f 1) && \
-    echo "Chrome major version: $CHROME_VERSION" && \
-    CHROMEDRIVER_VERSION=$(curl -sS "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_VERSION}") && \
-    echo "ChromeDriver version: $CHROMEDRIVER_VERSION" && \
-    wget -q -O /tmp/chromedriver-linux64.zip "https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip" && \
-    unzip /tmp/chromedriver-linux64.zip -d /tmp/ && \
-    mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/ && \
+# Install Chrome and ChromeDriver using Chrome for Testing
+RUN CHROME_VERSION=$(curl -sS https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json | jq -r '.channels.Stable.version') && \
+    echo "Installing Chrome version: $CHROME_VERSION" && \
+    wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" -O /tmp/chrome-linux64.zip && \
+    wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" -O /tmp/chromedriver-linux64.zip && \
+    unzip /tmp/chrome-linux64.zip -d /opt/ && \
+    unzip /tmp/chromedriver-linux64.zip -d /opt/ && \
+    ln -s /opt/chrome-linux64/chrome /usr/local/bin/google-chrome && \
+    ln -s /opt/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/google-chrome && \
     chmod +x /usr/local/bin/chromedriver && \
-    rm -rf /tmp/chromedriver-linux64.zip /tmp/chromedriver-linux64 && \
+    rm /tmp/chrome-linux64.zip /tmp/chromedriver-linux64.zip && \
+    google-chrome --version && \
     chromedriver --version
 
 # Create app directory
