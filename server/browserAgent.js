@@ -13,8 +13,13 @@ export class BrowserAgent {
   async initialize() {
     if (!this.browser) {
       this.browser = await chromium.launch({
-        headless: false, // Set to true for production
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        headless: true, // Production mode
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu'
+        ]
       });
       this.page = await this.browser.newPage();
 
