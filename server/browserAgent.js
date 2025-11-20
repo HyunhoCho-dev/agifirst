@@ -15,8 +15,8 @@ export class BrowserAgent {
       try {
         const options = new chrome.Options();
 
-        // Chrome binary path for Chrome for Testing
-        options.setChromeBinaryPath('/opt/chrome-linux64/chrome');
+        // Don't set binary path - let Selenium Manager handle it
+        // It will automatically download and manage ChromeDriver
 
         // Headless and security options
         options.addArguments('--headless=new');
@@ -31,6 +31,8 @@ export class BrowserAgent {
         options.addArguments('--disable-blink-features=AutomationControlled');
         options.addArguments('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
+        console.log('Initializing Selenium WebDriver with Chrome...');
+
         this.driver = await new Builder()
           .forBrowser('chrome')
           .setChromeOptions(options)
@@ -39,7 +41,9 @@ export class BrowserAgent {
         await this.driver.manage().window().setRect({ width: 1280, height: 720 });
 
         this.sendStatus('browser_ready', 'Browser initialized successfully');
+        console.log('✅ Browser initialized successfully');
       } catch (error) {
+        console.error('❌ Browser initialization failed:', error);
         this.sendStatus('error', 'Failed to initialize browser: ' + error.message);
         throw error;
       }
