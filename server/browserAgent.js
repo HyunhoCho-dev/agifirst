@@ -1,5 +1,6 @@
 import { Builder, By, until, Key } from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome.js';
+import { existsSync } from 'fs';
 
 export class BrowserAgent {
   constructor(groqService, ws) {
@@ -15,8 +16,11 @@ export class BrowserAgent {
       try {
         const options = new chrome.Options();
 
-        // Don't set binary path - let Selenium Manager handle it
-        // It will automatically download and manage ChromeDriver
+        // Try to set Chrome binary path if it exists
+        if (existsSync('/opt/chrome-linux64/chrome')) {
+          options.setChromeBinaryPath('/opt/chrome-linux64/chrome');
+          console.log('Using Chrome at /opt/chrome-linux64/chrome');
+        }
 
         // Headless and security options
         options.addArguments('--headless=new');
