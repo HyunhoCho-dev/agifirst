@@ -1,6 +1,6 @@
 # AGIfirst - AI Browser Control Platform
 
-AGIfirst는 Groq API와 Playwright를 사용하여 브라우저를 AI가 자동으로 제어할 수 있는 혁신적인 플랫폼입니다. AI 에이전트가 사용자의 목표를 달성할 때까지 자동으로 웹 브라우저를 제어합니다.
+AGIfirst는 Groq API와 Selenium WebDriver를 사용하여 브라우저를 AI가 자동으로 제어할 수 있는 혁신적인 플랫폼입니다. AI 에이전트가 사용자의 목표를 달성할 때까지 자동으로 웹 브라우저를 제어합니다.
 
 ## 🌟 주요 기능
 
@@ -32,12 +32,7 @@ cd agifirst
 npm install
 ```
 
-3. **Playwright 브라우저 설치**
-```bash
-npx playwright install chromium
-```
-
-4. **개발 서버 실행**
+3. **개발 서버 실행**
 ```bash
 npm run dev
 ```
@@ -130,7 +125,7 @@ agifirst/
 ├── server/
 │   ├── index.js           # Express 서버 및 WebSocket
 │   ├── groqService.js     # Groq AI 서비스
-│   └── browserAgent.js    # Playwright 브라우저 자동화
+│   └── browserAgent.js    # Selenium WebDriver 브라우저 자동화
 ├── public/
 │   ├── index.html         # 메인 HTML
 │   ├── style.css          # 스타일시트
@@ -145,7 +140,7 @@ agifirst/
 ### Backend
 - **Node.js & Express**: 웹 서버
 - **WebSocket (ws)**: 실시간 양방향 통신
-- **Playwright**: 브라우저 자동화
+- **Selenium WebDriver**: 브라우저 자동화
 - **Groq SDK**: AI 모델 통합
 
 ### Frontend
@@ -166,17 +161,15 @@ agifirst/
 ## ⚠️ 주의사항
 
 1. **API 사용량**: Groq API의 무료 티어 제한을 확인하세요
-2. **브라우저 리소스**: Playwright는 실제 브라우저를 실행하므로 서버 리소스를 많이 사용합니다
+2. **브라우저 리소스**: Selenium WebDriver는 실제 브라우저를 실행하므로 서버 리소스를 많이 사용합니다
 3. **웹사이트 정책**: 자동화가 금지된 웹사이트에서는 사용하지 마세요
 4. **책임 있는 사용**: AI 브라우저 자동화는 윤리적이고 합법적으로 사용하세요
 
 ## 🛠️ 문제 해결
 
-### Playwright 브라우저 오류
-```bash
-# 브라우저 재설치
-npx playwright install --with-deps chromium
-```
+### Chrome 브라우저 오류
+- Docker/Cloudtype 배포 시 Chrome이 자동으로 설치됩니다
+- 로컬 개발 환경에서는 Chrome 또는 Chromium 브라우저가 설치되어 있어야 합니다
 
 ### 포트 충돌
 ```bash

@@ -12,19 +12,37 @@ export class BrowserAgent {
 
   async initialize() {
     if (!this.driver) {
-      const options = new chrome.Options();
-      options.addArguments('--headless=new');
-      options.addArguments('--no-sandbox');
-      options.addArguments('--disable-dev-shm-usage');
-      options.addArguments('--disable-gpu');
-      options.addArguments('--window-size=1280,720');
+      try {
+        const options = new chrome.Options();
 
-      this.driver = await new Builder()
-        .forBrowser('chrome')
-        .setChromeOptions(options)
-        .build();
+        // Chrome binary path (for Docker/Linux)
+        options.setChromeBinaryPath('/usr/bin/google-chrome-stable');
 
-      await this.driver.manage().window().setRect({ width: 1280, height: 720 });
+        // Headless and security options
+        options.addArguments('--headless=new');
+        options.addArguments('--no-sandbox');
+        options.addArguments('--disable-dev-shm-usage');
+        options.addArguments('--disable-gpu');
+        options.addArguments('--disable-software-rasterizer');
+        options.addArguments('--disable-extensions');
+        options.addArguments('--disable-setuid-sandbox');
+        options.addArguments('--window-size=1280,720');
+        options.addArguments('--start-maximized');
+        options.addArguments('--disable-blink-features=AutomationControlled');
+        options.addArguments('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
+        this.driver = await new Builder()
+          .forBrowser('chrome')
+          .setChromeOptions(options)
+          .build();
+
+        await this.driver.manage().window().setRect({ width: 1280, height: 720 });
+
+        this.sendStatus('browser_ready', 'Browser initialized successfully');
+      } catch (error) {
+        this.sendStatus('error', 'Failed to initialize browser: ' + error.message);
+        throw error;
+      }
     }
   }
 
