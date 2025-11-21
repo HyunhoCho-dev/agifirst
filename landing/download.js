@@ -64,6 +64,19 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
                 downloadUrl = './downloads/AGIfirst-Setup.exe';
         }
 
+        // Check if file exists
+        const response = await fetch(downloadUrl, { method: 'HEAD' });
+
+        if (!response.ok) {
+            messageDiv.innerHTML = `
+                <div class="error">
+                    ❌ 아직 ${selectedPlatform === 'windows' ? 'Windows' : selectedPlatform === 'mac' ? 'macOS' : 'Linux'} 버전이 준비되지 않았습니다.<br>
+                    <small>곧 출시 예정입니다. GitHub 저장소를 방문해 주세요.</small>
+                </div>
+            `;
+            return;
+        }
+
         // Show success message
         messageDiv.innerHTML = '<div class="success">✅ 다운로드를 시작합니다...</div>';
 
@@ -91,7 +104,12 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
         }, 1000);
 
     } catch (error) {
-        messageDiv.innerHTML = `<div class="error">❌ 다운로드 실패: ${error.message}</div>`;
+        messageDiv.innerHTML = `
+            <div class="error">
+                ❌ 다운로드 파일을 찾을 수 없습니다.<br>
+                <small>GitHub 저장소에서 최신 릴리즈를 확인해 주세요.</small>
+            </div>
+        `;
     } finally {
         // Re-enable button
         downloadBtn.disabled = false;

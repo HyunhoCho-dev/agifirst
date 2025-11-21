@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8f9fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -24,12 +24,13 @@
 
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            max-width: 720px;
             width: 100%;
-            padding: 50px 40px;
+            padding: 60px 50px;
             text-align: center;
+            border: 1px solid #e9ecef;
         }
 
         .logo {
@@ -44,15 +45,18 @@
         }
 
         h1 {
-            font-size: 2.5em;
-            color: #333;
+            font-size: 2.8em;
+            color: #212529;
             margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            color: #666;
-            font-size: 1.2em;
-            margin-bottom: 40px;
+            color: #6c757d;
+            font-size: 1.1em;
+            margin-bottom: 50px;
+            font-weight: 400;
         }
 
         .features {
@@ -66,26 +70,35 @@
         .feature {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 15px;
+            gap: 12px;
+            padding: 18px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+
+        .feature:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
         }
 
         .feature-icon {
-            font-size: 24px;
+            font-size: 28px;
         }
 
         .feature-text {
-            font-size: 14px;
-            color: #555;
+            font-size: 15px;
+            color: #495057;
+            font-weight: 500;
         }
 
         .download-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
         }
 
         .input-group {
@@ -95,43 +108,48 @@
         label {
             display: block;
             text-align: left;
-            margin-bottom: 8px;
-            color: #333;
+            margin-bottom: 10px;
+            color: #212529;
             font-weight: 600;
+            font-size: 15px;
         }
 
         input[type="password"],
         input[type="text"] {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            padding: 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.2s;
+            background: #f8f9fa;
         }
 
         input[type="password"]:focus,
         input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #0d6efd;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
         }
 
         .download-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0d6efd;
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 18px;
+            border-radius: 12px;
+            font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
         }
 
         .download-btn:hover {
+            background: #0b5ed7;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
         }
 
         .download-btn:active {
@@ -139,7 +157,7 @@
         }
 
         .download-btn:disabled {
-            background: #ccc;
+            background: #adb5bd;
             cursor: not-allowed;
             transform: none;
         }
@@ -152,72 +170,91 @@
 
         .platform-btn {
             flex: 1;
-            padding: 12px;
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            padding: 14px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .platform-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
         }
 
         .platform-btn.selected {
-            border-color: #667eea;
-            background: #f0f3ff;
-            color: #667eea;
+            border-color: #0d6efd;
+            background: #e7f1ff;
+            color: #0d6efd;
         }
 
         .help-text {
             margin-top: 20px;
-            color: #666;
+            color: #6c757d;
             font-size: 14px;
         }
 
         .help-text a {
-            color: #667eea;
+            color: #0d6efd;
             text-decoration: none;
             font-weight: 600;
         }
 
         .help-text a:hover {
             text-decoration: underline;
+            color: #0b5ed7;
         }
 
         .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
             text-align: left;
+            border: 1px solid #e9ecef;
         }
 
         .info-box h3 {
-            color: #1976d2;
-            margin-bottom: 10px;
-            font-size: 16px;
+            color: #212529;
+            margin-bottom: 15px;
+            font-size: 17px;
+            font-weight: 600;
         }
 
         .info-box ol {
             margin-left: 20px;
-            color: #555;
+            color: #495057;
         }
 
         .info-box li {
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .error {
-            color: #f44336;
-            margin-top: 10px;
+            color: #dc3545;
+            margin-top: 15px;
             font-size: 14px;
+            padding: 12px;
+            background: #f8d7da;
+            border-radius: 8px;
+            border: 1px solid #f5c2c7;
         }
 
         .success {
-            color: #4caf50;
-            margin-top: 10px;
+            color: #198754;
+            margin-top: 15px;
             font-size: 14px;
+            padding: 12px;
+            background: #d1e7dd;
+            border-radius: 8px;
+            border: 1px solid #badbcc;
         }
     </style>
 </head>
