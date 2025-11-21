@@ -97,25 +97,102 @@ netlify deploy --prod
 
 ## 📦 실행 파일 호스팅
 
-`downloads/` 폴더의 실행 파일들을 호스팅하는 방법:
+현재 이 랜딩 페이지는 **GitHub Releases**를 사용하도록 설정되어 있습니다.
 
-### Option 1: GitHub Releases (추천)
+### ✅ GitHub Releases로 배포하기 (현재 설정)
+
+#### 1️⃣ 앱 빌드하기
+
+먼저 각 플랫폼에서 앱을 빌드해야 합니다:
 
 ```bash
-# GitHub CLI로 릴리즈 생성
-gh release create v1.0.0 \
-  landing/downloads/AGIfirst-Setup.exe \
-  landing/downloads/AGIfirst.dmg \
-  landing/downloads/AGIfirst.AppImage \
-  --title "AGIfirst v1.0.0" \
-  --notes "Initial release"
+# 프로젝트 루트에서
+cd client
 
-# 다운로드 URL 업데이트
-# download.js에서:
-# downloadUrl = 'https://github.com/yourusername/agifirst/releases/download/v1.0.0/AGIfirst-Setup.exe'
+# 의존성 설치 및 빌드
+python3 build.py
+
+# 빌드된 파일 위치 확인
+ls -la dist/AGIfirst/
 ```
 
-### Option 2: CDN
+빌드가 완료되면 `dist/AGIfirst/` 폴더에 실행 파일이 생성됩니다.
+
+#### 2️⃣ GitHub Release 생성하기
+
+**방법 A: GitHub CLI 사용 (추천)**
+
+```bash
+# GitHub CLI 설치 확인
+gh --version
+
+# 릴리즈 생성 (빌드된 파일 업로드)
+gh release create v1.0.0 \
+  client/dist/AGIfirst/AGIfirst.exe \
+  --title "AGIfirst v1.0.0" \
+  --notes "🎉 Initial release
+
+✨ Features:
+- AI Browser Control
+- Local execution
+- Groq API integration
+
+📥 Download:
+- Windows: AGIfirst-Setup.exe
+- macOS: AGIfirst.dmg (coming soon)
+- Linux: AGIfirst.AppImage (coming soon)"
+
+# Windows 빌드 파일 이름 변경 및 업로드
+cd client/dist/AGIfirst/
+gh release upload v1.0.0 AGIfirst.exe --clobber
+```
+
+**방법 B: GitHub 웹 인터페이스 사용**
+
+1. GitHub 저장소 방문: https://github.com/HyunhoCho-dev/agifirst
+2. 오른쪽의 **"Releases"** 클릭
+3. **"Draft a new release"** 클릭
+4. Tag version에 `v1.0.0` 입력
+5. Release title에 `AGIfirst v1.0.0` 입력
+6. 빌드된 파일 드래그 앤 드롭:
+   - `AGIfirst-Setup.exe` (Windows)
+   - `AGIfirst.dmg` (macOS)
+   - `AGIfirst.AppImage` (Linux)
+7. **"Publish release"** 클릭
+
+#### 3️⃣ 버전 업데이트 (필요시)
+
+새 버전을 릴리즈할 때는 `landing/download.js`의 버전을 업데이트하세요:
+
+```javascript
+// landing/download.js
+const RELEASE_VERSION = 'v1.0.0'; // 👈 여기를 새 버전으로 변경
+```
+
+#### 4️⃣ 테스트하기
+
+```bash
+# 로컬에서 테스트
+cd landing
+python3 -m http.server 8000
+
+# 브라우저에서 http://localhost:8000 접속
+# 다운로드 버튼 클릭하여 작동 확인
+```
+
+---
+
+### 🔄 다른 호스팅 옵션
+
+<details>
+<summary>Option 2: CDN (클릭하여 펼치기)</summary>
+
+GitHub Releases 대신 CDN을 사용하려면 `download.js`를 수정하세요:
+
+```javascript
+// download.js의 GITHUB_REPO 부분을 CDN URL로 변경
+downloadUrl = 'https://cdn.yourdomain.com/agifirst/AGIfirst-Setup.exe';
+```
 
 **AWS S3 + CloudFront:**
 ```bash
@@ -128,7 +205,10 @@ aws cloudfront create-invalidation --distribution-id XXX --paths "/*"
 gsutil cp -r downloads/ gs://your-bucket/agifirst/
 ```
 
-### Option 3: GitHub 저장소에 직접 포함
+</details>
+
+<details>
+<summary>Option 3: Git LFS (클릭하여 펼치기)</summary>
 
 **주의**: GitHub는 100MB 이상 파일을 권장하지 않습니다.
 
@@ -140,25 +220,12 @@ git add .gitattributes
 git add landing/downloads/
 git commit -m "Add executables"
 git push
-```
 
-## 🔄 다운로드 URL 업데이트
-
-`download.js` 파일에서 다운로드 URL을 실제 호스팅 위치로 변경:
-
-```javascript
-// 로컬 파일 (개발용)
+# download.js를 로컬 파일 경로로 변경
 downloadUrl = './downloads/AGIfirst-Setup.exe';
-
-// GitHub Releases
-downloadUrl = 'https://github.com/USER/REPO/releases/download/v1.0.0/AGIfirst-Setup.exe';
-
-// CDN
-downloadUrl = 'https://cdn.yourdomain.com/agifirst/AGIfirst-Setup.exe';
-
-// S3
-downloadUrl = 'https://your-bucket.s3.amazonaws.com/agifirst/AGIfirst-Setup.exe';
 ```
+
+</details>
 
 ## 🎨 커스터마이징
 

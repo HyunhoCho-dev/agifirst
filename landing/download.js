@@ -42,6 +42,10 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
     downloadBtn.textContent = '준비 중...';
 
     try {
+        // GitHub repository information
+        const GITHUB_REPO = 'HyunhoCho-dev/agifirst';
+        const RELEASE_VERSION = 'v1.0.0'; // Update this when you create a new release
+
         // Determine download file based on platform
         let fileName;
         let downloadUrl;
@@ -49,29 +53,34 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
         switch(selectedPlatform) {
             case 'windows':
                 fileName = 'AGIfirst-Setup.exe';
-                downloadUrl = './downloads/AGIfirst-Setup.exe';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Setup.exe`;
                 break;
             case 'mac':
                 fileName = 'AGIfirst.dmg';
-                downloadUrl = './downloads/AGIfirst.dmg';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.dmg`;
                 break;
             case 'linux':
                 fileName = 'AGIfirst.AppImage';
-                downloadUrl = './downloads/AGIfirst.AppImage';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.AppImage`;
                 break;
             default:
                 fileName = 'AGIfirst-Setup.exe';
-                downloadUrl = './downloads/AGIfirst-Setup.exe';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Setup.exe`;
         }
 
         // Check if file exists
         const response = await fetch(downloadUrl, { method: 'HEAD' });
 
         if (!response.ok) {
+            const platformName = selectedPlatform === 'windows' ? 'Windows' : selectedPlatform === 'mac' ? 'macOS' : 'Linux';
             messageDiv.innerHTML = `
                 <div class="error">
-                    ❌ 아직 ${selectedPlatform === 'windows' ? 'Windows' : selectedPlatform === 'mac' ? 'macOS' : 'Linux'} 버전이 준비되지 않았습니다.<br>
-                    <small>곧 출시 예정입니다. GitHub 저장소를 방문해 주세요.</small>
+                    ❌ ${platformName} 버전이 아직 릴리즈되지 않았습니다.<br>
+                    <small>
+                        <a href="https://github.com/${GITHUB_REPO}/releases" target="_blank" style="color: #dc3545; text-decoration: underline;">
+                            GitHub Releases
+                        </a>에서 사용 가능한 버전을 확인하세요.
+                    </small>
                 </div>
             `;
             return;
@@ -104,10 +113,15 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
         }, 1000);
 
     } catch (error) {
+        const GITHUB_REPO = 'HyunhoCho-dev/agifirst';
         messageDiv.innerHTML = `
             <div class="error">
-                ❌ 다운로드 파일을 찾을 수 없습니다.<br>
-                <small>GitHub 저장소에서 최신 릴리즈를 확인해 주세요.</small>
+                ❌ 다운로드 중 오류가 발생했습니다.<br>
+                <small>
+                    <a href="https://github.com/${GITHUB_REPO}/releases" target="_blank" style="color: #dc3545; text-decoration: underline;">
+                        GitHub Releases
+                    </a>에서 직접 다운로드하거나, 네트워크 연결을 확인해 주세요.
+                </small>
             </div>
         `;
     } finally {
