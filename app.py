@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__, static_folder='public')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 
 # Active sessions
 sessions = {}

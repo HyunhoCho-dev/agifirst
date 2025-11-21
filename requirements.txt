@@ -3,7 +3,8 @@ Flask-CORS==4.0.0
 Flask-SocketIO==5.3.5
 python-socketio==5.10.0
 gunicorn==21.2.0
-eventlet==0.33.3
+gevent==24.2.1
+gevent-websocket==0.10.1
 selenium==4.16.0
 groq==0.11.0
 httpx==0.27.0
