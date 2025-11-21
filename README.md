@@ -1,10 +1,11 @@
 # AGIfirst - AI Browser Control Platform
 
-AGIfirst는 Groq API와 Selenium WebDriver를 사용하여 브라우저를 AI가 자동으로 제어할 수 있는 혁신적인 플랫폼입니다. AI 에이전트가 사용자의 목표를 달성할 때까지 자동으로 웹 브라우저를 제어합니다.
+AGIfirst는 Groq API와 Selenium WebDriver를 사용하여 브라우저를 AI가 자동으로 제어할 수 있는 혁신적인 플랫폼입니다. **Jupyter Notebook처럼 사용자의 컴퓨터에서 실행**되며, 웹 브라우저를 통해 접근합니다.
 
 ## 🌟 주요 기능
 
 - 🤖 **AI 기반 브라우저 자동화**: Groq의 강력한 LLM을 사용한 지능적인 브라우저 제어
+- 💻 **로컬 실행**: Jupyter Notebook처럼 사용자의 컴퓨터에서 안전하게 실행
 - 🎮 **웹 게임 플레이**: AI가 웹 게임을 플레이할 수 있습니다
 - 🔍 **자동 검색**: 복잡한 검색 작업을 AI에게 맡기세요
 - 🛒 **온라인 쇼핑 지원**: 상품 검색, 비교, 구매 프로세스 자동화
@@ -12,56 +13,54 @@ AGIfirst는 Groq API와 Selenium WebDriver를 사용하여 브라우저를 AI가
 - 🎨 **ChatGPT 스타일 UI**: 깔끔하고 직관적인 사용자 인터페이스
 - 🔒 **개인 API 키**: 각 사용자가 자신의 Groq API 키를 사용
 
-## 🚀 시작하기
+## 🚀 빠른 시작
 
-### 사전 요구사항
+### 방법 1: 다운로드 (권장)
 
-- Node.js 18 이상
-- Groq API 키 (https://console.groq.com/ 에서 무료로 발급 가능)
+1. **랜딩 페이지 접속**
+   - `landing/index.html`을 웹 서버에 호스팅하거나 직접 열기
+   - GitHub Pages, Vercel 등 무료 호스팅 가능
 
-### 로컬 개발 환경 설정
+2. **API 키 입력**
+   - [Groq Console](https://console.groq.com/)에서 무료 API 키 발급
+   - 랜딩 페이지에 API 키 입력
 
-1. **저장소 클론**
+3. **운영체제 선택 후 다운로드**
+   - Windows / macOS / Linux 중 선택
+   - 실행 파일 다운로드
+
+4. **프로그램 실행**
+   - 다운로드한 파일 실행
+   - 자동으로 브라우저가 열림 (http://localhost:8080)
+
+### 방법 2: 소스 코드로 실행
+
+#### 사전 요구사항
+- Python 3.11 이상
+- Chrome 또는 Chromium 브라우저
+- Groq API 키
+
+#### 실행 방법
+
 ```bash
+# 저장소 클론
 git clone <repository-url>
-cd agifirst
+cd agifirst/client
+
+# 의존성 설치
+pip install -r requirements.txt
+
+# 프로그램 실행
+python local_app.py
 ```
 
-2. **의존성 설치**
-```bash
-npm install
-```
-
-3. **개발 서버 실행**
-```bash
-npm run dev
-```
-
-5. **브라우저에서 접속**
-- http://localhost:3000 으로 접속
-- Groq API 키를 입력하여 시작
-
-### 프로덕션 빌드
-
-```bash
-npm start
-```
-
-## 🐳 Docker로 실행
-
-```bash
-# 이미지 빌드
-docker build -t agifirst .
-
-# 컨테이너 실행
-docker run -p 3000:3000 agifirst
-```
+브라우저가 자동으로 열리고 `http://localhost:8080`에 접속됩니다.
 
 ## 📖 사용 방법
 
 ### 1. API 키 입력
-- 웹사이트 접속 시 Groq API 키 입력 화면이 나타납니다
-- https://console.groq.com/ 에서 발급받은 API 키를 입력하세요
+- 처음 실행 시 Groq API 키 입력 화면이 나타납니다
+- API 키는 로컬에 안전하게 저장됩니다
 
 ### 2. 작업 요청
 텍스트 입력창에 원하는 작업을 자연어로 입력하세요:
@@ -84,24 +83,33 @@ docker run -p 3000:3000 agifirst
 
 ```
 agifirst/
-├── server/
-│   ├── index.js           # Express 서버 및 WebSocket
-│   ├── groqService.js     # Groq AI 서비스
-│   └── browserAgent.js    # Selenium WebDriver 브라우저 자동화
-├── public/
-│   ├── index.html         # 메인 HTML
-│   ├── style.css          # 스타일시트
-│   └── app.js             # 클라이언트 JavaScript
-├── Dockerfile             # Docker 설정
-├── package.json           # 프로젝트 설정
-└── README.md             # 문서
+├── client/                  # 로컬 실행 애플리케이션
+│   ├── local_app.py         # 메인 애플리케이션 (Flask 서버)
+│   ├── browser_agent.py     # Selenium 브라우저 자동화
+│   ├── groq_service.py      # Groq AI 서비스
+│   ├── public/              # 웹 UI 파일들
+│   │   ├── index.html       # 메인 HTML
+│   │   ├── style.css        # 스타일시트
+│   │   └── app.js           # 클라이언트 JavaScript
+│   ├── build.py             # 실행 파일 빌드 스크립트
+│   ├── agifirst.spec        # PyInstaller 설정
+│   └── requirements.txt     # Python 의존성
+│
+├── landing/                 # 다운로드 랜딩 페이지
+│   ├── index.html           # 랜딩 페이지
+│   └── download.js          # 다운로드 로직
+│
+├── README.md                # 프로젝트 문서
+├── LOCAL_SETUP.md           # 상세 설정 가이드
+└── QUICKSTART.md            # 빠른 시작 가이드
 ```
 
 ## 🔧 기술 스택
 
-### Backend
-- **Node.js & Express**: 웹 서버
-- **WebSocket (ws)**: 실시간 양방향 통신
+### Backend (로컬 실행)
+- **Python 3.11**: 메인 언어
+- **Flask**: 로컬 웹 서버
+- **Flask-SocketIO**: 실시간 양방향 통신
 - **Selenium WebDriver**: 브라우저 자동화
 - **Groq SDK**: AI 모델 통합
 
@@ -110,37 +118,58 @@ agifirst/
 - **WebSocket API**: 실시간 통신
 - **CSS3**: 모던하고 깔끔한 UI
 
-### Deployment
-- **Docker**: 컨테이너화
+### Packaging
+- **PyInstaller**: 실행 파일 생성 (.exe, .dmg, .AppImage)
 
 ## 🔐 보안
 
-- 사용자의 API 키는 서버에 저장되지 않습니다
-- 모든 API 키는 클라이언트 세션에서만 관리됩니다
-- WebSocket 연결이 끊어지면 API 키가 자동으로 삭제됩니다
+- API 키는 사용자의 컴퓨터에만 저장됩니다
+- 모든 처리는 로컬에서 이루어집니다
+- 외부 서버로 데이터가 전송되지 않습니다 (Groq API 제외)
+
+## 📦 배포 및 빌드
+
+### 실행 파일 생성
+
+```bash
+cd client
+python build.py
+```
+
+생성된 실행 파일은 `dist/` 폴더에 저장됩니다.
+
+### 랜딩 페이지 배포
+
+`landing/` 폴더를 GitHub Pages, Vercel, Netlify 등에 무료로 호스팅할 수 있습니다.
+
+자세한 내용은 [LOCAL_SETUP.md](LOCAL_SETUP.md)와 [QUICKSTART.md](QUICKSTART.md)를 참조하세요.
 
 ## ⚠️ 주의사항
 
 1. **API 사용량**: Groq API의 무료 티어 제한을 확인하세요
-2. **브라우저 리소스**: Selenium WebDriver는 실제 브라우저를 실행하므로 서버 리소스를 많이 사용합니다
+2. **브라우저 리소스**: Selenium WebDriver는 실제 브라우저를 실행하므로 시스템 리소스를 사용합니다
 3. **웹사이트 정책**: 자동화가 금지된 웹사이트에서는 사용하지 마세요
 4. **책임 있는 사용**: AI 브라우저 자동화는 윤리적이고 합법적으로 사용하세요
 
 ## 🛠️ 문제 해결
 
 ### Chrome 브라우저 오류
-- Docker 배포 시 Chrome이 자동으로 설치됩니다
-- 로컬 개발 환경에서는 Chrome 또는 Chromium 브라우저가 설치되어 있어야 합니다
+- Chrome 또는 Chromium 브라우저가 설치되어 있어야 합니다
+- Linux: `sudo apt install chromium-browser`
+- macOS: `brew install --cask google-chrome`
+- Windows: [공식 사이트](https://www.google.com/chrome/)에서 다운로드
 
 ### 포트 충돌
+기본 포트(8080)가 사용 중인 경우:
 ```bash
-# .env 파일에서 포트 변경
-PORT=3001
+PORT=8081 python client/local_app.py
 ```
 
-### WebSocket 연결 실패
-- 방화벽 설정 확인
-- HTTPS 환경에서는 WSS 프로토콜 사용 확인
+### Python 버전 오류
+Python 3.11 이상이 필요합니다:
+```bash
+python --version
+```
 
 ## 📝 라이선스
 
@@ -156,4 +185,4 @@ MIT License
 
 ---
 
-**AGIfirst** - AI가 브라우저를 제어하는 미래를 경험하세요 🚀
+**AGIfirst** - Jupyter Notebook처럼 사용하는 AI 브라우저 자동화 🚀
