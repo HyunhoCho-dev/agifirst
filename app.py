@@ -24,11 +24,30 @@ def index():
 
 @app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('public', path)
+    try:
+        return send_from_directory('public', path)
+    except Exception as e:
+        logger.warning(f'Failed to serve static file {path}: {e}')
+        return {'error': 'File not found'}, 404
 
 @app.route('/health')
 def health():
     return {'status': 'ok'}
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors gracefully"""
+    logger.warning(f'404 error: {request.path}')
+    # For favicon requests, return empty response instead of error
+    if request.path == '/favicon.ico':
+        return '', 204
+    return {'error': 'Not found'}, 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    logger.error(f'500 error: {error}')
+    return {'error': 'Internal server error'}, 500
 
 @socketio.on('connect')
 def handle_connect():
