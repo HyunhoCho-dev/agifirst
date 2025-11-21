@@ -3,7 +3,9 @@ app:
   env:
     - name: NODE_ENV
       value: production
-  ports: 3000
+    - name: PORT
+      value: "5000"
+  ports: "5000"
   build:
     type: dockerfile
     dockerfile: Dockerfile
