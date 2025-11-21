@@ -33,7 +33,7 @@ def health():
 @socketio.on('connect')
 def handle_connect():
     logger.info(f'Client connected: {request.sid}')
-    emit('connected', {'session_id': request.sid})
+    emit('message', {'type': 'connected', 'session_id': request.sid})
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -65,17 +65,17 @@ def handle_message(data):
         elif msg_type == 'stop':
             handle_stop(session_id)
         else:
-            emit('error', {'message': 'Unknown command'})
+            emit('message', {'type': 'error', 'message': 'Unknown command'})
     except Exception as e:
         logger.error(f'Error handling message: {e}')
-        emit('error', {'message': str(e)})
+        emit('message', {'type': 'error', 'message': str(e)})
 
 def handle_init(session_id, data):
     """Initialize a new session with Groq API"""
     api_key = data.get('apiKey')
 
     if not api_key:
-        emit('error', {'message': 'Groq API key is required'})
+        emit('message', {'type': 'error', 'message': 'Groq API key is required'})
         return
 
     try:
@@ -87,21 +87,21 @@ def handle_init(session_id, data):
             'browser_agent': browser_agent
         }
 
-        emit('init_success', {'sessionId': session_id})
+        emit('message', {'type': 'init_success', 'sessionId': session_id})
         logger.info(f'Session initialized: {session_id}')
     except Exception as e:
         logger.error(f'Initialization failed: {e}')
-        emit('error', {'message': f'Failed to initialize: {str(e)}'})
+        emit('message', {'type': 'error', 'message': f'Failed to initialize: {str(e)}'})
 
 def handle_execute(session_id, data):
     """Execute a browser automation task"""
     if session_id not in sessions:
-        emit('error', {'message': 'Session not initialized'})
+        emit('message', {'type': 'error', 'message': 'Session not initialized'})
         return
 
     task = data.get('task')
     if not task:
-        emit('error', {'message': 'Task is required'})
+        emit('message', {'type': 'error', 'message': 'Task is required'})
         return
 
     logger.info(f'Executing task: {task}')
@@ -118,7 +118,7 @@ def handle_stop(session_id):
         session = sessions[session_id]
         if 'browser_agent' in session:
             session['browser_agent'].stop()
-            emit('stopped', {'message': 'Task execution stopped'})
+            emit('message', {'type': 'stopped', 'message': 'Task execution stopped'})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
