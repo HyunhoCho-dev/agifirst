@@ -25,6 +25,19 @@ playwright-report/
 dist/
 build/
 
+# PyInstaller
+client/build/
+client/dist/
+landing/downloads/*.exe
+landing/downloads/*.dmg
+landing/downloads/*.AppImage
+*.pyc
+__pycache__/
+
+# Local config
+.agifirst/
+config.json
+
 # IDE
 .vscode/
 .idea/

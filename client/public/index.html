@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGIfirst - AI Browser Control</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🤖</text></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- API Key Modal -->
+    <div id="apiKeyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome to AGIfirst</h2>
+                <p>AI-powered browser automation platform</p>
+            </div>
+            <div class="modal-body">
+                <p>Please enter your Groq API key to continue:</p>
+                <input
+                    type="password"
+                    id="apiKeyInput"
+                    placeholder="Enter your Groq API key"
+                    autocomplete="off"
+                />
+                <button id="connectBtn" class="primary-btn">Connect</button>
+                <p class="help-text">
+                    Don't have an API key?
+                    <a href="https://console.groq.com/" target="_blank">Get one here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button id="newChatBtn" class="new-chat-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New task
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="chat-history" id="chatHistory">
+                    <!-- Chat history will be added here -->
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="status-indicator connected" id="statusIndicator"></div>
+                    <span id="statusText">Connected</span>
+                </div>
+                <button id="disconnectBtn" class="disconnect-btn">Disconnect</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="chat-container">
+                <div class="messages" id="messages">
+                    <div class="welcome-message">
+                        <h1>AGIfirst</h1>
+                        <p>I can control your browser to help you with:</p>
+                        <div class="capabilities">
+                            <div class="capability-card">
+                                <div class="capability-icon">🎮</div>
+                                <div class="capability-text">Playing web games</div>
+                            </div>
+                            <div class="capability-card">
+                                <div class="capability-icon">🔍</div>
+                                <div class="capability-text">Web searching</div>
+                            </div>
+                            <div class="capability-card">
+                                <div class="capability-icon">🛒</div>
+                                <div class="capability-text">Online shopping</div>
+                            </div>
+                            <div class="capability-card">
+                                <div class="capability-icon">💼</div>
+                                <div class="capability-text">Work tasks</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea
+                            id="taskInput"
+                            placeholder="What would you like me to do?"
+                            rows="1"
+                        ></textarea>
+                        <button id="sendBtn" class="send-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                        <button id="stopBtn" class="stop-btn hidden">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="6" width="12" height="12"></rect>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
