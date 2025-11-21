@@ -33,7 +33,6 @@ def health():
 @socketio.on('connect')
 def handle_connect():
     logger.info(f'Client connected: {request.sid}')
-    emit('message', {'type': 'connected', 'session_id': request.sid})
 
 @socketio.on('disconnect')
 def handle_disconnect():

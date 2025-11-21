@@ -66,6 +66,7 @@ class AGIFirstClient {
     try {
       // Connect using Socket.IO
       this.socket = io({
+        transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionAttempts: 5
