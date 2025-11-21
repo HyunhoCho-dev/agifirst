@@ -57,44 +57,6 @@ docker build -t agifirst .
 docker run -p 3000:3000 agifirst
 ```
 
-## ☁️ Cloudtype 배포
-
-### 배포 방법
-
-1. **Cloudtype 계정 생성**
-   - https://cloudtype.io/ 에서 계정 생성
-
-2. **GitHub 저장소 연결**
-   - Cloudtype 대시보드에서 "새 프로젝트" 생성
-   - GitHub 저장소 선택
-
-3. **배포 설정**
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-   - **Port**: `3000`
-   - **환경 변수**: 필요한 경우 설정 (선택사항)
-
-4. **배포 실행**
-   - "배포하기" 버튼 클릭
-   - 자동으로 빌드 및 배포 진행
-
-### Dockerfile 기반 배포
-
-Cloudtype은 자동으로 Dockerfile을 감지하여 배포합니다.
-
-```yaml
-# cloudtype.yml (선택사항)
-name: agifirst
-services:
-  - name: agifirst-app
-    type: web
-    dockerfile: Dockerfile
-    port: 3000
-    resources:
-      memory: 1024
-      cpu: 1
-```
-
 ## 📖 사용 방법
 
 ### 1. API 키 입력
@@ -150,7 +112,6 @@ agifirst/
 
 ### Deployment
 - **Docker**: 컨테이너화
-- **Cloudtype**: 클라우드 배포 플랫폼
 
 ## 🔐 보안
 
@@ -168,7 +129,7 @@ agifirst/
 ## 🛠️ 문제 해결
 
 ### Chrome 브라우저 오류
-- Docker/Cloudtype 배포 시 Chrome이 자동으로 설치됩니다
+- Docker 배포 시 Chrome이 자동으로 설치됩니다
 - 로컬 개발 환경에서는 Chrome 또는 Chromium 브라우저가 설치되어 있어야 합니다
 
 ### 포트 충돌
