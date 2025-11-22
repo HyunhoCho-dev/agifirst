@@ -68,46 +68,25 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
                 downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Setup.exe`;
         }
 
-        // Check if file exists
-        const response = await fetch(downloadUrl, { method: 'HEAD' });
-
-        if (!response.ok) {
-            const platformName = selectedPlatform === 'windows' ? 'Windows' : selectedPlatform === 'mac' ? 'macOS' : 'Linux';
-            messageDiv.innerHTML = `
-                <div class="error">
-                    ❌ ${platformName} 버전이 아직 릴리즈되지 않았습니다.<br>
-                    <small>
-                        <a href="https://github.com/${GITHUB_REPO}/releases" target="_blank" style="color: #dc3545; text-decoration: underline;">
-                            GitHub Releases
-                        </a>에서 사용 가능한 버전을 확인하세요.
-                    </small>
-                </div>
-            `;
-            return;
-        }
-
-        // Show success message
+        // Show starting message
         messageDiv.innerHTML = '<div class="success">✅ 다운로드를 시작합니다...</div>';
 
-        // Create download link
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-
-        // Trigger download
-        link.click();
-
-        // Clean up
-        document.body.removeChild(link);
+        // Direct download using window.location or <a> tag
+        // This avoids CORS issues with GitHub Releases
+        window.location.href = downloadUrl;
 
         // Show installation instructions
         setTimeout(() => {
             messageDiv.innerHTML = `
                 <div class="success">
-                    ✅ 다운로드 완료!<br>
-                    <small>다운로드한 파일을 실행하면 자동으로 브라우저가 열립니다.</small>
+                    ✅ 다운로드가 시작되었습니다!<br>
+                    <small>
+                        다운로드한 파일을 실행하면 자동으로 브라우저가 열립니다.<br>
+                        만약 다운로드가 시작되지 않는다면
+                        <a href="https://github.com/${GITHUB_REPO}/releases" target="_blank" style="color: #198754; text-decoration: underline;">
+                            여기
+                        </a>에서 직접 다운로드하세요.
+                    </small>
                 </div>
             `;
         }, 1000);
