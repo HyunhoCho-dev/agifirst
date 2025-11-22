@@ -118,7 +118,21 @@ ls -la dist/AGIfirst/
 
 빌드가 완료되면 `dist/AGIfirst/` 폴더에 실행 파일이 생성됩니다.
 
-#### 2️⃣ GitHub Release 생성하기
+#### 2️⃣ Windows용 ZIP 파일 생성하기
+
+**중요**: Chrome이 exe 파일을 직접 다운로드하면 차단하므로, ZIP 파일로 압축해서 배포합니다.
+
+```bash
+# Windows에서
+cd client/dist/AGIfirst/
+Compress-Archive -Path AGIfirst.exe -DestinationPath AGIfirst-Windows.zip
+
+# macOS/Linux에서
+cd client/dist/AGIfirst/
+zip AGIfirst-Windows.zip AGIfirst.exe
+```
+
+#### 3️⃣ GitHub Release 생성하기
 
 **방법 A: GitHub CLI 사용 (추천)**
 
@@ -126,9 +140,9 @@ ls -la dist/AGIfirst/
 # GitHub CLI 설치 확인
 gh --version
 
-# 릴리즈 생성 (빌드된 파일 업로드)
+# 릴리즈 생성 (ZIP 파일 업로드)
 gh release create v1.0.0 \
-  client/dist/AGIfirst/AGIfirst.exe \
+  client/dist/AGIfirst/AGIfirst-Windows.zip \
   --title "AGIfirst v1.0.0" \
   --notes "🎉 Initial release
 
@@ -138,13 +152,9 @@ gh release create v1.0.0 \
 - Groq API integration
 
 📥 Download:
-- Windows: AGIfirst-Setup.exe
-- macOS: AGIfirst.dmg (coming soon)
-- Linux: AGIfirst.AppImage (coming soon)"
-
-# Windows 빌드 파일 이름 변경 및 업로드
-cd client/dist/AGIfirst/
-gh release upload v1.0.0 AGIfirst.exe --clobber
+- Windows: AGIfirst-Windows.zip (압축 해제 후 AGIfirst.exe 실행)
+- macOS: Coming soon
+- Linux: Coming soon"
 ```
 
 **방법 B: GitHub 웹 인터페이스 사용**
@@ -154,13 +164,20 @@ gh release upload v1.0.0 AGIfirst.exe --clobber
 3. **"Draft a new release"** 클릭
 4. Tag version에 `v1.0.0` 입력
 5. Release title에 `AGIfirst v1.0.0` 입력
-6. 빌드된 파일 드래그 앤 드롭:
-   - `AGIfirst-Setup.exe` (Windows)
-   - `AGIfirst.dmg` (macOS)
-   - `AGIfirst.AppImage` (Linux)
-7. **"Publish release"** 클릭
+6. 빌드된 ZIP 파일 드래그 앤 드롭:
+   - `AGIfirst-Windows.zip` (Windows)
+   - `AGIfirst.dmg` (macOS - 준비 중)
+   - `AGIfirst.AppImage` (Linux - 준비 중)
+7. Release notes에 설치 방법 추가:
+   ```
+   📦 Windows 설치 방법:
+   1. AGIfirst-Windows.zip 다운로드
+   2. ZIP 파일 압축 해제
+   3. AGIfirst.exe 실행
+   ```
+8. **"Publish release"** 클릭
 
-#### 3️⃣ 버전 업데이트 (필요시)
+#### 4️⃣ 버전 업데이트 (필요시)
 
 새 버전을 릴리즈할 때는 `landing/download.js`의 버전을 업데이트하세요:
 
@@ -169,7 +186,9 @@ gh release upload v1.0.0 AGIfirst.exe --clobber
 const RELEASE_VERSION = 'v1.0.0'; // 👈 여기를 새 버전으로 변경
 ```
 
-#### 4️⃣ 테스트하기
+**참고**: Windows용은 ZIP 파일로, macOS/Linux용은 원본 파일로 배포합니다.
+
+#### 5️⃣ 테스트하기
 
 ```bash
 # 로컬에서 테스트

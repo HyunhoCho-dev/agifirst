@@ -52,8 +52,8 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
 
         switch(selectedPlatform) {
             case 'windows':
-                fileName = 'AGIfirst.exe';
-                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.exe`;
+                fileName = 'AGIfirst-Windows.zip';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Windows.zip`;
                 break;
             case 'mac':
                 fileName = 'AGIfirst.dmg';
@@ -64,31 +64,58 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
                 downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.AppImage`;
                 break;
             default:
-                fileName = 'AGIfirst.exe';
-                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.exe`;
+                fileName = 'AGIfirst-Windows.zip';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Windows.zip`;
         }
 
         // Show starting message
         messageDiv.innerHTML = '<div class="success">✅ 다운로드를 시작합니다...</div>';
 
-        // Direct download using window.location or <a> tag
-        // This avoids CORS issues with GitHub Releases
-        window.location.href = downloadUrl;
+        // Create a hidden link and click it to trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
         // Show installation instructions
         setTimeout(() => {
-            messageDiv.innerHTML = `
-                <div class="success">
-                    ✅ 다운로드가 시작되었습니다!<br>
-                    <small>
-                        다운로드한 파일을 실행하면 자동으로 브라우저가 열립니다.<br>
-                        만약 다운로드가 시작되지 않는다면
-                        <a href="https://github.com/${GITHUB_REPO}/releases" target="_blank" style="color: #198754; text-decoration: underline;">
-                            여기
-                        </a>에서 직접 다운로드하세요.
-                    </small>
-                </div>
-            `;
+            let instructions = '';
+            if (selectedPlatform === 'windows') {
+                instructions = `
+                    <div class="success">
+                        ✅ 다운로드가 시작되었습니다!<br><br>
+                        <strong>📦 설치 방법:</strong><br>
+                        <small>
+                            1️⃣ 다운로드한 <code>AGIfirst-Windows.zip</code> 파일을 압축 해제하세요<br>
+                            2️⃣ <code>AGIfirst.exe</code> 파일을 실행하세요<br>
+                            3️⃣ 브라우저가 자동으로 열립니다!<br><br>
+                            ⚠️ <strong>브라우저 경고가 나타나면:</strong><br>
+                            Chrome/Edge: 다운로드 바에서 "^" 클릭 → "보관" 또는 "유지" 선택<br><br>
+                            다운로드가 시작되지 않았다면
+                            <a href="https://github.com/${GITHUB_REPO}/releases/tag/${RELEASE_VERSION}" target="_blank" style="color: #198754; text-decoration: underline; font-weight: bold;">
+                                GitHub에서 직접 다운로드
+                            </a>하세요.
+                        </small>
+                    </div>
+                `;
+            } else {
+                instructions = `
+                    <div class="success">
+                        ✅ 다운로드가 시작되었습니다!<br>
+                        <small>
+                            다운로드한 파일을 실행하면 자동으로 브라우저가 열립니다.<br>
+                            만약 다운로드가 시작되지 않는다면
+                            <a href="https://github.com/${GITHUB_REPO}/releases/tag/${RELEASE_VERSION}" target="_blank" style="color: #198754; text-decoration: underline;">
+                                GitHub에서 직접 다운로드
+                            </a>하세요.
+                        </small>
+                    </div>
+                `;
+            }
+            messageDiv.innerHTML = instructions;
         }, 1000);
 
     } catch (error) {
