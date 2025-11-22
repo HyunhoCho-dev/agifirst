@@ -52,8 +52,8 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
 
         switch(selectedPlatform) {
             case 'windows':
-                fileName = 'AGIfirst-Setup.exe';
-                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Setup.exe`;
+                fileName = 'AGIfirst.exe';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.exe`;
                 break;
             case 'mac':
                 fileName = 'AGIfirst.dmg';
@@ -64,8 +64,8 @@ document.getElementById('downloadBtn').addEventListener('click', async function(
                 downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.AppImage`;
                 break;
             default:
-                fileName = 'AGIfirst-Setup.exe';
-                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst-Setup.exe`;
+                fileName = 'AGIfirst.exe';
+                downloadUrl = `https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/AGIfirst.exe`;
         }
 
         // Show starting message
